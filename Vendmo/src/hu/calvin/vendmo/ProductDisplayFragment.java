@@ -1,12 +1,20 @@
 package hu.calvin.vendmo;
 
+import hu.calvin.vendmo.api.VenmoApi;
+
+import org.scribe.builder.ServiceBuilder;
+import org.scribe.model.Token;
+import org.scribe.oauth.OAuthService;
+
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 /**
  * A simple {@link android.support.v4.app.Fragment} subclass. Activities that
@@ -66,8 +74,24 @@ public class ProductDisplayFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_product_display, container,
+		View v =  inflater.inflate(R.layout.fragment_product_display, container,
 				false);
+		Button testButton = (Button) v.findViewById(R.id.button_test_oauth);
+		testButton.setOnClickListener(new OnClickListener(){
+			public void onClick(View v){
+				/*OAuthService service = new ServiceBuilder()
+                .provider(VenmoApi.class)
+                .apiKey("1598")
+                .apiSecret("zzBq8mQRsb9nypkq8SfU3Ppamd6qdYXY")
+                .build();
+				Token requestToken = service.getRequestToken();
+				String authUrl = service.getAuthorizationUrl(requestToken);*/
+				//Token accessToken = new Token("wwdcZ44W4CdxAnfXaN7jk36hnb3uTgnj", "test");
+				
+				
+			}
+		});
+		return v;
 	}
 
 	// TODO: Rename method, update argument and hook method into UI event
