@@ -3,8 +3,8 @@
 //int right = 6; //RED
 //int left = 5; //ORANGE
 
-int right = 7; //RED
-int left = 8; //ORANGE*/
+int right = 2; //RED
+int left = 3; //ORANGE*/
 
 int btRX = 11;
 int btTX = 10;
@@ -20,10 +20,11 @@ void setup() {
   pinMode(left, OUTPUT);
   pinMode(right, OUTPUT);
   btSerial.begin(9600);
+  Serial.begin(9600);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // put your main code hre, to run repeatedly:
   //delay(8000);
   //digitalWrite(right, LOW);
   //digitalWrite(left, LOW);
@@ -32,26 +33,28 @@ void loop() {
   //digitalWrite(right, LOW);*/
   //btSerial.println("testing456");
   
-       //digitalWrite(left, HIGH);
-       //digitalWrite(right, HIGH);
-       
+       digitalWrite(left, HIGH);
+       digitalWrite(right, HIGH);
+       /*
   if(btSerial.available()){
     current = btSerial.read();
     if(current == LEFT_CHAR){
+       Serial.write(current);
        digitalWrite(left, HIGH);
        delay(1000);
        digitalWrite(left, LOW);
-       delay(8000);
+       delay(16000);
        current = 'q';
     }
     else if(current == RIGHT_CHAR){
+      Serial.write(current);
        digitalWrite(right, HIGH);
        delay(1000);
        digitalWrite(right, LOW);
-       delay(8000);
+       delay(16000);
        current = 'q';
     }
     //btSerial.println("back");
-  }
-  btSerial.println("gogogo");
+  btSerial.write(current);
+  }*/
 }
