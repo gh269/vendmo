@@ -72,7 +72,8 @@ public class Display2Activity extends FragmentActivity implements
      * Substitute you own sender ID here. This is the project number you got
      * from the API Console, as described in "Getting Started."
      */
-    String SENDER_ID = "281284429773";
+    //String SENDER_ID = "281284429773";
+   String SENDER_ID = "932659607558";
 
     /**
      * Tag used on log messages.
