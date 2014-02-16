@@ -3,8 +3,8 @@
 //int right = 6; //RED
 //int left = 5; //ORANGE
 
-int right = 2; //RED
-int left = 3; //ORANGE*/
+int right = 5; //RED
+int left = 6; //ORANGE*/
 
 int btRX = 11;
 int btTX = 10;
@@ -33,9 +33,9 @@ void loop() {
   //digitalWrite(right, LOW);*/
   //btSerial.println("testing456");
   
-       digitalWrite(left, HIGH);
-       digitalWrite(right, HIGH);
-       /*
+       //digitalWrite(left, HIGH);
+       //digitalWrite(right, HIGH);
+       
   if(btSerial.available()){
     current = btSerial.read();
     if(current == LEFT_CHAR){
@@ -56,5 +56,5 @@ void loop() {
     }
     //btSerial.println("back");
   btSerial.write(current);
-  }*/
+  }
 }
