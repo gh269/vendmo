@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">Vendmo</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="dummy_button">Dispensing...</string>
+    <string name="dummy_content">Dispensing...</string>
     <string name="title_activity_display">DisplayActivity</string>
     <string name="action_settings">Settings</string>
     <string name="title_location">Current Location</string>
@@ -12,5 +12,6 @@
     <string name="title_activity_display2">Display2Activity</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="test_oauth">Test OAuth</string>
+    <string name="title_activity_dispense"></string>
 
 </resources>

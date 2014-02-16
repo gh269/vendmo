@@ -14,19 +14,15 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-import hu.calvin.vendmo.ProductDisplayFragment.OnFragmentInteractionListener;
-import hu.calvin.vendmo.hardware.BluetoothUtils;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import android.app.ActionBar;
+import hu.calvin.vendmo.hardware.BluetoothUtils;
+import hu.calvin.vendmo.util.SystemUiHider;
+
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -34,35 +30,50 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.NavUtils;
+import android.os.Handler;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.view.Window;
 import android.widget.TextView;
 
-
-public class Display2Activity extends FragmentActivity implements
-		ActionBar.OnNavigationListener, OnFragmentInteractionListener {
+/**
+ * An example full-screen activity that shows and hides the system UI (i.e.
+ * status bar and navigation/system bar) with user interaction.
+ * 
+ * @see SystemUiHider
+ */
+public class AttractModeActivity extends Activity {
+	/**
+	 * Whether or not the system UI should be auto-hidden after
+	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
+	 */
+	private static final boolean AUTO_HIDE = true;
 
 	/**
-	 * The serialization (saved instance state) Bundle key representing the
-	 * current dropdown position.
+	 * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
+	 * user interaction before hiding the system UI.
 	 */
-	private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
-	private LocationManager locationManager;
-	private Location currentLocation;
-	private SupportMapFragment mapFragment;
+	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
+
+	/**
+	 * If set, will toggle the system UI visibility upon interaction. Otherwise,
+	 * will show the system UI visibility upon interaction.
+	 */
+	private static final boolean TOGGLE_ON_CLICK = true;
+
+	/**
+	 * The flags to pass to {@link SystemUiHider#getInstance}.
+	 */
+	private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
+
+	/**
+	 * The instance of the {@link SystemUiHider} for this activity.
+	 */
+	private SystemUiHider mSystemUiHider;
 	
 	public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
@@ -94,51 +105,79 @@ public class Display2Activity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_display2);
 
-		// Set up the action bar to show a dropdown list.
-		final ActionBar actionBar = getActionBar();
-		actionBar.setDisplayShowTitleEnabled(false);
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		setContentView(R.layout.activity_attract);
 
-		// Set up the dropdown list navigation in the action bar.
-		actionBar.setListNavigationCallbacks(
-		// Specify a SpinnerAdapter to populate the dropdown list.
-				new ArrayAdapter<String>(actionBar.getThemedContext(),
-						android.R.layout.simple_list_item_1,
-						android.R.id.text1, new String[] {
-								getString(R.string.title_products),
-								getString(R.string.title_location),
-								getString(R.string.title_call), }), this);
+		final View controlsView = findViewById(R.id.fullscreen_content_controls);
+		final View contentView = findViewById(R.id.fullscreen_content);
+
+		// Set up an instance of SystemUiHider to control the system UI for
+		// this activity.
+		mSystemUiHider = SystemUiHider.getInstance(this, contentView,
+				HIDER_FLAGS);
+		mSystemUiHider.setup();
+		mSystemUiHider
+				.setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
+					// Cached values.
+					int mControlsHeight;
+					int mShortAnimTime;
+
+					@Override
+					@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+					public void onVisibilityChange(boolean visible) {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+							// If the ViewPropertyAnimator API is available
+							// (Honeycomb MR2 and later), use it to animate the
+							// in-layout UI controls at the bottom of the
+							// screen.
+							if (mControlsHeight == 0) {
+								mControlsHeight = controlsView.getHeight();
+							}
+							if (mShortAnimTime == 0) {
+								mShortAnimTime = getResources().getInteger(
+										android.R.integer.config_shortAnimTime);
+							}
+							controlsView
+									.animate()
+									.translationY(visible ? 0 : mControlsHeight)
+									.setDuration(mShortAnimTime);
+						} else {
+							// If the ViewPropertyAnimator APIs aren't
+							// available, simply show or hide the in-layout UI
+							// controls.
+							controlsView.setVisibility(visible ? View.VISIBLE
+									: View.GONE);
+						}
+
+						if (visible && AUTO_HIDE) {
+							// Schedule a hide().
+							delayedHide(AUTO_HIDE_DELAY_MILLIS);
+						}
+					}
+				});
+
+		// Set up the user interaction to manually show or hide the system UI.
+		contentView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if (TOGGLE_ON_CLICK) {
+					mSystemUiHider.toggle();
+				} else {
+					mSystemUiHider.show();
+				}
+			}
+		});
+
+		// Upon interacting with UI controls, delay any scheduled hide()
+		// operations to prevent the jarring behavior of controls going away
+		// while interacting with the UI.
+		findViewById(R.id.dummy_button).setOnTouchListener(
+				mDelayHideTouchListener);
 		
-		// Acquire a reference to the system Location Manager
-		locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-		currentLocation = null;
-		
-		// Define a listener that responds to location updates
-		LocationListener locationListener = new LocationListener() {
-			private boolean setupDone = false;
-			
-		    public void onLocationChanged(Location location) {
-		      // Called when a new location is found by the network location provider.
-		      if(mapFragment != null && mapFragment.getMap() != null && !setupDone){
-		    	  setupDone = true;
-		    	  currentLocation = location;
-		    	  setupMap(mapFragment);
-		      }
-		    }
+		Bundle extras = getIntent().getExtras();
+		//String sentence = extras.getString("sentence");
+		((TextView)findViewById(R.id.fullscreen_content)).setText("VENDMO");
 
-		    public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-		    public void onProviderEnabled(String provider) {}
-
-		    public void onProviderDisabled(String provider) {}
-		  };
-
-		// Register the listener with the Location Manager to receive location updates
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-	
-		
 		if (checkPlayServices()) {
 			context = this;
             gcm = GoogleCloudMessaging.getInstance(this);
@@ -150,30 +189,51 @@ public class Display2Activity extends FragmentActivity implements
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
-		
-		/*final BluetoothUtils btUtilsTmp = new BluetoothUtils(this);
-		
-		new AsyncTask<Void, Void, Void>(){
+		//requestWindowFeature(Window.FEATURE_NO_TITLE);
+	}
 
-			@Override
-			protected Void doInBackground(Void... arg0) {
-				btUtilsTmp.connect();
-				btUtils = btUtilsTmp;
-				Log.d("done","done");
-				startListening();
-				//try {
-				//	btUtils.sendData((TextView)v.findViewById(R.id.text_btcontent));
-				//} catch (IOException e) {
-				//	e.printStackTrace();
-				//}
-				return null;
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
+		// Trigger the initial hide() shortly after the activity has been
+		// created, to briefly hint to the user that UI controls
+		// are available.
+		delayedHide(100);
+	}
+
+	/**
+	 * Touch listener to use for in-layout UI controls to delay hiding the
+	 * system UI. This is to prevent the jarring behavior of controls going away
+	 * while interacting with activity UI.
+	 */
+	View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+		@Override
+		public boolean onTouch(View view, MotionEvent motionEvent) {
+			if (AUTO_HIDE) {
+				delayedHide(AUTO_HIDE_DELAY_MILLIS);
 			}
-		}.execute(null,null,null);*/
+			return false;
+		}
+	};
+
+	Handler mHideHandler = new Handler();
+	Runnable mHideRunnable = new Runnable() {
+		@Override
+		public void run() {
+			mSystemUiHider.hide();
+		}
+	};
+
+	/**
+	 * Schedules a call to hide() in [delay] milliseconds, canceling any
+	 * previously scheduled calls.
+	 */
+	private void delayedHide(int delayMillis) {
+		mHideHandler.removeCallbacks(mHideRunnable);
+		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
 	
-	public void startListening(){
-		btUtils.startListen();
-	}
 	/**
 	 * Check the device to make sure it has the Google Play Services APK. If
 	 * it doesn't, display a dialog that allows users to download the APK from
@@ -332,80 +392,4 @@ public class Display2Activity extends FragmentActivity implements
         editor.putInt(PROPERTY_APP_VERSION, appVersion);
         editor.commit();
     }
-	
-
-	@Override
-	public void onRestoreInstanceState(Bundle savedInstanceState) {
-		// Restore the previously serialized current dropdown position.
-		if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
-			getActionBar().setSelectedNavigationItem(
-					savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
-		}
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		// Serialize the current dropdown position.
-		outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar()
-				.getSelectedNavigationIndex());
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.display2, menu);
-		return true;
-	}
-
-	
-	public void setupMap(SupportMapFragment mapFragment){
-		if(mapFragment != null){
-			GoogleMap map = mapFragment.getMap();
-			if(currentLocation != null && map != null){
-				map.addMarker(new MarkerOptions().position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude())).title("Vendmo"));
-				map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 10));
-				map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null); 
-			}
-		}
-		//map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-	}
-	
-	@Override
-	public boolean onNavigationItemSelected(int position, long id) {
-		// When the given dropdown item is selected, show its contents in the
-		// container view.
-		//Fragment fragment = new DummySectionFragment();
-		//Bundle args = new Bundle();
-		//args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-		//fragment.setArguments(args);
-		///getSupportFragmentManager().beginTransaction()
-				//.replace(R.id.container, fragment).commit();
-
-		switch(position){
-		case 0:
-			ProductDisplayFragment pFragment = new ProductDisplayFragment();
-			getSupportFragmentManager().beginTransaction()
-			.replace(R.id.container, pFragment).commit();
-			break;
-		case 1:
-			mapFragment = new SupportMapFragment();
-			getSupportFragmentManager().beginTransaction()
-				.replace(R.id.container, mapFragment).commit();
-			break;
-		case 2:
-			BluetoothFragment btFragment = new BluetoothFragment();
-			getSupportFragmentManager().beginTransaction()
-				.replace(R.id.container, btFragment).commit();
-		default:
-			break;
-		}
-		return true;
-	}
-
-	@Override
-	public void onFragmentInteraction(Uri uri) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

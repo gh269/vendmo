@@ -1,5 +1,8 @@
 package hu.calvin.vendmo;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.app.IntentService;
@@ -39,10 +42,10 @@ public class GcmIntentService extends IntentService {
              */
             if (GoogleCloudMessaging.
                     MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                sendNotification("Send error: " + extras.toString());
+            	handleGCM("Send error: " + extras.toString());
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_DELETED.equals(messageType)) {
-                sendNotification("Deleted messages on server: " +
+            	handleGCM("Deleted messages on server: " +
                         extras.toString());
             // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
@@ -58,7 +61,7 @@ public class GcmIntentService extends IntentService {
                 }*/
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                sendNotification("Received: " + extras.toString());
+                handleGCM("Received: " + extras.toString());
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -69,7 +72,7 @@ public class GcmIntentService extends IntentService {
     // Put the message into a notification and post it.
     // This is just one simple example of what you might choose to do with
     // a GCM message.
-    private void sendNotification(String msg) {
+    private void handleGCM(String msg) {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -86,5 +89,37 @@ public class GcmIntentService extends IntentService {
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+    	if(msg.contains("lefta")){
+    		/*Pattern p = Pattern.compile("$\"first_name\":\".*\"^");
+    		Matcher m = p.matcher(msg);
+    		String firstName = m.group(3).substring(14, m.group(3).length() - 2);
+    		
+    		p = Pattern.compile("$\"note\":\".*\"^");
+    		m = p.matcher(msg);
+    		String item = m.group(2).substring(8, m.group(2).length() - 1);
+    		
+    		String sentence = firstName + "bought a " + item + ".";*/
+    		
+    		Intent intent = new Intent(this, DispenseActivity.class);
+    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    		//intent.putExtra("sentence", sentence);
+    		getApplication().startActivity(intent);
+    	}
+    	else if(msg.contains("righta")){
+    		/*Pattern p = Pattern.compile("\"first_name\":\"*\"");
+    		Matcher m = p.matcher(msg);
+    		String firstName = m.group(3).substring(14, m.group(3).length() - 2);
+    		
+    		p = Pattern.compile("\"note\":\"*\"");
+    		m = p.matcher(msg);
+    		String item = m.group(2).substring(8, m.group(2).length() - 1);
+    		
+    		String sentence = firstName + "bought a " + item + ".";
+    		*/
+    		Intent intent = new Intent(this, DispenseActivity.class);
+    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    		//intent.putExtra("sentence", sentence);
+    		getApplication().startActivity(intent);
+    	}
     }
 }

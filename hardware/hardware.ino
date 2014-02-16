@@ -24,17 +24,17 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  /*delay(8000);
-  digitalWrite(right, LOW);
-  digitalWrite(left, LOW);
-  delay(8000);
-  digitalWrite(left, LOW);
-  digitalWrite(right, LOW);*/
+  //delay(8000);
+  //digitalWrite(right, LOW);
+  //digitalWrite(left, LOW);
+  //delay(8000);
+  //digitalWrite(left, LOW);
+  //digitalWrite(right, LOW);*/
   //btSerial.println("testing456");
   
        //digitalWrite(left, HIGH);
        //digitalWrite(right, HIGH);
-       /*
+       
   if(btSerial.available()){
     current = btSerial.read();
     if(current == LEFT_CHAR){
@@ -51,8 +51,7 @@ void loop() {
        delay(8000);
        current = 'q';
     }
-    btSerial.println("back");
+    //btSerial.println("back");
   }
-  */
   btSerial.println("gogogo");
 }
