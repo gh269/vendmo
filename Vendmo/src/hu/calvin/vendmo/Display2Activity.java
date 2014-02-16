@@ -15,6 +15,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import hu.calvin.vendmo.ProductDisplayFragment.OnFragmentInteractionListener;
+import hu.calvin.vendmo.hardware.BluetoothUtils;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -67,6 +68,8 @@ public class Display2Activity extends FragmentActivity implements
     public static final String PROPERTY_REG_ID = "registration_id";
     private static final String PROPERTY_APP_VERSION = "appVersion";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    
+    private BluetoothUtils btUtils;
 
     /**
      * Substitute you own sender ID here. This is the project number you got
@@ -118,7 +121,6 @@ public class Display2Activity extends FragmentActivity implements
 			
 		    public void onLocationChanged(Location location) {
 		      // Called when a new location is found by the network location provider.
-		      Log.d("Location info", location.toString());
 		      if(mapFragment != null && mapFragment.getMap() != null && !setupDone){
 		    	  setupDone = true;
 		    	  currentLocation = location;
@@ -148,8 +150,30 @@ public class Display2Activity extends FragmentActivity implements
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
+		
+		final BluetoothUtils btUtilsTmp = new BluetoothUtils(this);
+		
+		new AsyncTask<Void, Void, Void>(){
+
+			@Override
+			protected Void doInBackground(Void... arg0) {
+				btUtilsTmp.connect();
+				btUtils = btUtilsTmp;
+				Log.d("done","done");
+				startListening();
+				//try {
+				//	btUtils.sendData((TextView)v.findViewById(R.id.text_btcontent));
+				//} catch (IOException e) {
+				//	e.printStackTrace();
+				//}
+				return null;
+			}
+		}.execute(null,null,null);
 	}
 	
+	public void startListening(){
+		btUtils.startListen();
+	}
 	/**
 	 * Check the device to make sure it has the Google Play Services APK. If
 	 * it doesn't, display a dialog that allows users to download the APK from
@@ -338,7 +362,6 @@ public class Display2Activity extends FragmentActivity implements
 		if(mapFragment != null){
 			GoogleMap map = mapFragment.getMap();
 			if(currentLocation != null && map != null){
-				Log.d("currentLocation not null", "true");
 				map.addMarker(new MarkerOptions().position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude())).title("Vendmo"));
 				map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 10));
 				map.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null); 

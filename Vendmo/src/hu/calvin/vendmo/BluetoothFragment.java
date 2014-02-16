@@ -1,6 +1,7 @@
 package hu.calvin.vendmo;
 
 import hu.calvin.vendmo.ProductDisplayFragment.OnFragmentInteractionListener;
+import hu.calvin.vendmo.hardware.BluetoothUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -83,84 +85,6 @@ public class BluetoothFragment extends Fragment {
 			Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
 		View v = inflater.inflate(R.layout.fragment_bluetooth, container, false);
-		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    	String status;
-    	if(bluetoothAdapter != null){
-    		if (bluetoothAdapter.isEnabled()) {
-    		    String mydeviceaddress = bluetoothAdapter.getAddress();
-    		    String mydevicename = bluetoothAdapter.getName();
-    		    status = mydevicename + " : " + mydeviceaddress;
-    		    //((TextView)findViewById(R.id.fullscreen_content)).setText(status);
-    		    
-    		    Set<BluetoothDevice> bluetoothSet = bluetoothAdapter.getBondedDevices();
-    		    
-    		    Iterator<BluetoothDevice> bditer = bluetoothSet.iterator();
-    		    BluetoothDevice linvor = null;
-    		    while(bditer.hasNext()){
-    		    	BluetoothDevice current = bditer.next();
-    		    	if(current.getName().equals("linvor")){
-    		    		linvor = current;
-    		    		break;
-    		    	}
-    		    }
-    		    
-    		    try {
-					BluetoothSocket socket = linvor.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-					socket.connect();
-					final InputStream linvorStream = socket.getInputStream();
-					final OutputStream linvorOutputStream = socket.getOutputStream();
-					Log.d("In Bluetooth", "After Connect");
-					final Handler handler = new Handler();
-				    Thread workerThread = new Thread(new Runnable(){
-				    	public void run(){
-				            String totalData = "after available";
-				    		while(!Thread.currentThread().isInterrupted()){
-					            int bytesAvailable;
-								try {
-									bytesAvailable = linvorStream.available();
-									//Log.d("In Bluetooth", "After Available");
-									//Log.d("test", totalData);
-									
-									if(bytesAvailable > 0){
-										//stopRecordingVideo();
-			                            byte[] packetBytes = new byte[bytesAvailable];
-			                            int numChar = linvorStream.read(packetBytes);
-			                            //Log.e("numChar", numChar + "");
-			                            
-	                                    totalData += new String(packetBytes, "US-ASCII");
-	                                    
-	                                    for(int i = 0; i < packetBytes.length; i++){
-	                                    	if(packetBytes[i] == 10){
-	                                    		//Log.e("bytes number", bytesAvailable + "");
-	    	                                    Log.e("totalData", totalData);
-	    	                                    /*if (totalData.equals("0\n")) {
-
-	    	                                    } else if(totalData.equals("1\n")) {
-	    	                                    	
-	    	                                    }*/
-	    	                                    totalData = "";
-	                                    		break;
-	                                    	}
-	                                    }
-	                                    
-			                        }
-								} catch (IOException e) {
-									e.printStackTrace();
-								}
-				            }
-				        }
-				        });
-				    
-				        workerThread.start();
-				        
-    		    } catch (IOException e) {
-					e.printStackTrace();
-				}
-    		}
-    		else{
-    			((TextView)v.findViewById(R.id.text_btcontent)).setText("Bluetooth not enabled.");
-    		}
-    	}
 		
 		return v;
 		
