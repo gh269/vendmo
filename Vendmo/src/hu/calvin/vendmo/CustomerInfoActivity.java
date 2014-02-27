@@ -111,6 +111,27 @@ public class CustomerInfoActivity extends Activity {
 		
 		((TextView)findViewById(R.id.fullscreen_content)).setText(msg);
 	}
+
+	@Override
+	protected void onResume(){
+		super.onResume();
+		final Activity activity = this;
+		new AsyncTask<Void,Void,Void>(){
+
+			@Override
+			protected Void doInBackground(Void... params) {
+					try {
+						Thread.sleep(16000);
+						final Intent intent = new Intent(activity, DispenseActivity.class);
+				        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
+				        activity.startActivity(intent);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					return null;
+			}
+		}.execute(null,null,null);
+	}
 	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {

@@ -98,13 +98,13 @@ public class GcmIntentService extends IntentService {
         try {
 			JSONObject jsonObject = new JSONObject(msg);
 			String amount = jsonObject.getString("amount");
-			JSONObject user = jsonObject.getJSONObject("actor");
+			JSONObject user = jsonObject.getJSONObject("target");
 			String firstName = user.getString("first_name");
 			String imageUrl = user.getString("profile_picture_url");
-			/*
-			if((System.currentTimeMillis() - currentTime) > 0){
-				currentTime = System.currentTimeMillis();
-				*/
+			
+			//if((System.currentTimeMillis() - currentTime) > 100){
+			//	currentTime = System.currentTimeMillis();
+				
 				if(msg.contains("cola")){
 		    		if(!mPhysicaloid.isOpened()){
 		    			mPhysicaloid.open();
@@ -136,9 +136,8 @@ public class GcmIntentService extends IntentService {
 		    		}
 		    		
 		    		Intent intent = new Intent(this, CustomerInfoActivity.class);
-		    		Bundle extras = new Bundle();
-		    		extras.putString("message", firstName + " paid $" + amount + ".");
-		    		extras.putString("image_url", imageUrl);
+		    		intent.putExtra("message", firstName + " paid $" + amount + ".");
+		    		intent.putExtra("image_url", imageUrl);
 		    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		    		getApplication().startActivity(intent);
 		    	}

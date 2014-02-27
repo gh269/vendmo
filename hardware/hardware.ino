@@ -12,6 +12,7 @@ int btTX = 10;
 char current = 'q';
 char LEFT_CHAR = 'l';
 char RIGHT_CHAR = 'r';
+unsigned long time = millis();
 
 SoftwareSerial btSerial(btRX, btTX);;
 
@@ -38,22 +39,25 @@ void loop() {
        
   if(Serial.available()){
     current = Serial.read();
-    if(current == LEFT_CHAR){
-       //Serial.write(current);
-       digitalWrite(left, HIGH);
-       delay(1000);
-       digitalWrite(left, LOW);
-       delay(8000);
+    if((millis() - time) > 30000){
+      time = millis();
+      if(current == LEFT_CHAR){
+         //Serial.write(current);
+         digitalWrite(left, HIGH);
+         delay(1000);
+         digitalWrite(left, LOW);
+         delay(8000);
+      }
+      else if(current == RIGHT_CHAR){
+        //Serial.write(current);
+         digitalWrite(right, HIGH);
+         delay(2000);
+         digitalWrite(right, LOW);
+         delay(8000);
+      }
+      //btSerial.println("back");
+    Serial.write(current);
+    current = 'q';
     }
-    else if(current == RIGHT_CHAR){
-      //Serial.write(current);
-       digitalWrite(right, HIGH);
-       delay(2000);
-       digitalWrite(right, LOW);
-       delay(8000);
-    }
-    //btSerial.println("back");
-  Serial.write(current);
-  current = 'q';
   }
 }
