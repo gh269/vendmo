@@ -2,8 +2,9 @@
 <resources>
 
     <string name="app_name">Vendmo</string>
-    <string name="dummy_button">Dispensing...</string>
-    <string name="dummy_content">Dispensing...</string>
+    <string name="dummy_button"></string>
+    <string name="title">Vendmo</string>
+    <string name="description">Vendmo is a vending machine that operates using Venmo! Visit vendmo.me or tap your phone against the NFC tag for more info.</string>
     <string name="title_activity_display">DisplayActivity</string>
     <string name="action_settings">Settings</string>
     <string name="title_location">Current Location</string>
@@ -12,6 +13,7 @@
     <string name="title_activity_display2">Display2Activity</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="test_oauth">Test OAuth</string>
-    <string name="title_activity_dispense"></string>
+    <string name="title_activity_dispense">title</string>
+    <string name="button_start">Start Dispenser</string>
 
 </resources>

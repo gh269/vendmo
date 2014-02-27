@@ -36,10 +36,10 @@ void loop() {
        //digitalWrite(left, HIGH);
        //digitalWrite(right, HIGH);
        
-  if(btSerial.available()){
-    current = btSerial.read();
+  if(Serial.available()){
+    current = Serial.read();
     if(current == LEFT_CHAR){
-       Serial.write(current);
+       //Serial.write(current);
        digitalWrite(left, HIGH);
        delay(1000);
        digitalWrite(left, LOW);
@@ -47,7 +47,7 @@ void loop() {
        current = 'q';
     }
     else if(current == RIGHT_CHAR){
-      Serial.write(current);
+      //Serial.write(current);
        digitalWrite(right, HIGH);
        delay(1000);
        digitalWrite(right, LOW);
@@ -55,6 +55,6 @@ void loop() {
        current = 'q';
     }
     //btSerial.println("back");
-  btSerial.write(current);
+  Serial.write(current);
   }
 }

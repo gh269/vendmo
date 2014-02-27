@@ -11,45 +11,29 @@
          TextureView, etc.
     -->
 
-    <TextView
-        android:id="@+id/fullscreen_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:text="@string/dummy_content"
-        android:textColor="#B2EDE0"
-        android:textSize="150sp"
-        android:textStyle="bold" />
+    <RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	    <TextView
+	        android:id="@+id/fullscreen_content"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:gravity="center"
+	        android:keepScreenOn="true"
+	        android:textColor="#B2EDE0"
+	        android:textSize="80sp"
+	        android:textStyle="bold"
+	        android:layout_alignParentTop="true" />
+	    <Button 
+	        android:id="@+id/button_start"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+    		android:layout_centerInParent="true"
+	        android:textSize="32sp"
+	        android:text="@string/button_start"
+	        android:layout_below="@id/fullscreen_content" />
+	    
+	</RelativeLayout>
 
-    <!--
-         This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows.
-    -->
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true" >
-
-        <LinearLayout
-            android:id="@+id/fullscreen_content_controls"
-            style="?buttonBarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:background="@color/black_overlay"
-            android:orientation="horizontal"
-            tools:ignore="UselessParent" >
-
-            <Button
-                android:id="@+id/dummy_button"
-                style="?buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/dummy_button" />
-        </LinearLayout>
-    </FrameLayout>
-
+   
 </FrameLayout>

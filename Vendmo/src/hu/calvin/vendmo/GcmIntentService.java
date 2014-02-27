@@ -3,7 +3,12 @@ package hu.calvin.vendmo;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.gson.Gson;
+import com.physicaloid.lib.Physicaloid;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -14,12 +19,14 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;  
+import android.widget.TextView;
 
 public class GcmIntentService extends IntentService {
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
     static final String TAG = "GCMDemo";
+	private static Physicaloid mPhysicaloid;
 
     public GcmIntentService() {
         super("GcmIntentService");
@@ -27,6 +34,8 @@ public class GcmIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+    	mPhysicaloid = new Physicaloid(this);
+		mPhysicaloid.open();
         Bundle extras = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         // The getMessageType() intent parameter must be the intent you received
@@ -61,8 +70,11 @@ public class GcmIntentService extends IntentService {
                 }*/
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                handleGCM("Received: " + extras.toString());
-                Log.i(TAG, "Received: " + extras.toString());
+                String extraString = extras.toString();
+                if(extraString.length() >= 8){
+                	handleGCM(extraString.substring(7, extraString.length()-1));
+                	Log.i(TAG, "Received: " + extras.toString());
+                }
             }
         }
         // Release the wake lock provided by the WakefulBroadcastReceiver.
@@ -77,7 +89,7 @@ public class GcmIntentService extends IntentService {
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, Display2Activity.class), 0);
+                new Intent(this, DispenseActivity.class), 0);
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -89,37 +101,47 @@ public class GcmIntentService extends IntentService {
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        Log.d("service", msg);
+        try {
+			JSONObject jsonObject = new JSONObject(msg);
+			String amount = jsonObject.getString("amount");
+			JSONObject user = (jsonObject.getJSONObject("actor")).getJSONObject("user");
+			String firstName = user.getString("first_name");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
     	if(msg.contains("lefta")){
-    		/*Pattern p = Pattern.compile("$\"first_name\":\".*\"^");
-    		Matcher m = p.matcher(msg);
-    		String firstName = m.group(3).substring(14, m.group(3).length() - 2);
+    		if(!mPhysicaloid.isOpened()){
+    			mPhysicaloid.open();
+    		}
+    		if(mPhysicaloid.isOpened()){
+    			mPhysicaloid.setBaudrate(9600);
+    			byte[] buf = new byte[1];
+    			buf[0] = 'l';
+    	        mPhysicaloid.write(buf, buf.length);
+    	        mPhysicaloid.close();
+    		}
     		
-    		p = Pattern.compile("$\"note\":\".*\"^");
-    		m = p.matcher(msg);
-    		String item = m.group(2).substring(8, m.group(2).length() - 1);
-    		
-    		String sentence = firstName + "bought a " + item + ".";*/
-    		
-    		Intent intent = new Intent(this, DispenseActivity.class);
-    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    		//Intent intent = new Intent(this, DispenseActivity.class);
+    		//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     		//intent.putExtra("sentence", sentence);
-    		getApplication().startActivity(intent);
+    		//getApplication().startActivity(intent);
     	}
     	else if(msg.contains("righta")){
-    		/*Pattern p = Pattern.compile("\"first_name\":\"*\"");
-    		Matcher m = p.matcher(msg);
-    		String firstName = m.group(3).substring(14, m.group(3).length() - 2);
+    		if(!mPhysicaloid.isOpened()){
+    			mPhysicaloid.open();
+    		}
+    		if(mPhysicaloid.isOpened()){
+    			mPhysicaloid.setBaudrate(9600);
+    			byte[] buf = new byte[1];
+    			buf[0] = 'r';
+    	        mPhysicaloid.write(buf, buf.length);
+    	        mPhysicaloid.close();
+    		}
     		
-    		p = Pattern.compile("\"note\":\"*\"");
-    		m = p.matcher(msg);
-    		String item = m.group(2).substring(8, m.group(2).length() - 1);
-    		
-    		String sentence = firstName + "bought a " + item + ".";
-    		*/
-    		Intent intent = new Intent(this, DispenseActivity.class);
-    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    		//intent.putExtra("sentence", sentence);
-    		getApplication().startActivity(intent);
+    		//Intent intent = new Intent(this, DispenseActivity.class);
+    		//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    		//getApplication().startActivity(intent);
     	}
     }
 }

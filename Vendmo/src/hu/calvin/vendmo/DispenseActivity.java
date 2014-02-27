@@ -1,14 +1,19 @@
 package hu.calvin.vendmo;
 
+import com.physicaloid.lib.Physicaloid;
+
 import hu.calvin.vendmo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -48,14 +53,19 @@ public class DispenseActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
-
+	private static Physicaloid mPhysicaloid;
+	private boolean opened;
+	private AsyncTask<Void, Void, Void> task;
+	TextView serialText;
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_dispense);
+		getActionBar().hide();
 
-		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
 
 		// Set up an instance of SystemUiHider to control the system UI for
@@ -77,23 +87,14 @@ public class DispenseActivity extends Activity {
 							// (Honeycomb MR2 and later), use it to animate the
 							// in-layout UI controls at the bottom of the
 							// screen.
-							if (mControlsHeight == 0) {
-								mControlsHeight = controlsView.getHeight();
-							}
 							if (mShortAnimTime == 0) {
 								mShortAnimTime = getResources().getInteger(
 										android.R.integer.config_shortAnimTime);
 							}
-							controlsView
-									.animate()
-									.translationY(visible ? 0 : mControlsHeight)
-									.setDuration(mShortAnimTime);
 						} else {
 							// If the ViewPropertyAnimator APIs aren't
 							// available, simply show or hide the in-layout UI
 							// controls.
-							controlsView.setVisibility(visible ? View.VISIBLE
-									: View.GONE);
 						}
 
 						if (visible && AUTO_HIDE) {
@@ -115,39 +116,59 @@ public class DispenseActivity extends Activity {
 			}
 		});
 
-		// Upon interacting with UI controls, delay any scheduled hide()
-		// operations to prevent the jarring behavior of controls going away
-		// while interacting with the UI.
-		findViewById(R.id.dummy_button).setOnTouchListener(
-				mDelayHideTouchListener);
-		
-		Bundle extras = getIntent().getExtras();
-		//String sentence = extras.getString("sentence");
-		//((TextView)findViewById(R.id.fullscreen_content)).setText(sentence);
-
-		//requestWindowFeature(Window.FEATURE_NO_TITLE);
-
+	/*	
 		final Activity activity = this;
-		new AsyncTask<Void,Void,Void>(){
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				try {
-					Thread.sleep(8000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				Intent intent = new Intent(activity, AttractModeActivity.class);
-	    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	    		//intent.putExtra("sentence", sentence);
-	    		getApplication().startActivity(intent);
-				return null;
-			}
-			
-		}.execute(null,null,null);
+		mPhysicaloid = new Physicaloid(this);
+		opened = false;
+		serialText = (TextView)findViewById(R.id.serial_content);
+		serialText.setText("Serial readin: ");
+		*/
 	}
-
+/*
+	@Override
+	protected void onResume(){
+		super.onResume();
+		if(!opened){
+			opened = mPhysicaloid.open();
+		}
+		if(opened){
+			task = new AsyncTask<Void, Void, Void>(){
+	
+				@Override
+				protected Void doInBackground(Void... arg0) {
+					for(;;){
+						byte[] buf = new byte[256];
+				        int readSize=0;
+		
+				        readSize = mPhysicaloid.read(buf);
+				        if(readSize>0) {
+				            String str;
+				            try {
+				                str = new String(buf, "UTF-8");
+				                serialText.append(str);
+				            } catch (UnsupportedEncodingException e) {
+				                Log.e("Dispense",e.toString());
+				            }
+				        }
+					}
+				}
+				
+			};
+		}
+		task.execute(null,null,null);
+	}
+	
+	@Override
+	protected void onPause(){
+		super.onPause();
+		if(opened){
+			opened = !mPhysicaloid.close();
+		}
+		task.cancel(true);
+	}
+	*/
+	
+	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
@@ -189,4 +210,11 @@ public class DispenseActivity extends Activity {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
+	
+	static void show(Context context) {
+        //driver = sDriver;
+        final Intent intent = new Intent(context, DispenseActivity.class);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
+    }
 }
