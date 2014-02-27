@@ -27,9 +27,11 @@ public class GcmIntentService extends IntentService {
     NotificationCompat.Builder builder;
     static final String TAG = "GCMDemo";
 	private static Physicaloid mPhysicaloid;
+	private long currentTime;
 
     public GcmIntentService() {
         super("GcmIntentService");
+        currentTime = System.currentTimeMillis();
     }
 
     @Override
@@ -59,20 +61,11 @@ public class GcmIntentService extends IntentService {
             // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                // This loop represents the service doing some work.
-                /*for (int i=0; i<5; i++) {
-                    Log.i(TAG, "Working... " + (i+1)
-                            + "/5 @ " + SystemClock.elapsedRealtime());
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                    }
-                }*/
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
                 String extraString = extras.toString();
                 if(extraString.length() >= 8){
-                	handleGCM(extraString.substring(7, extraString.length()-1));
+                	handleGCM(extraString.substring(13, extraString.length() - 151));
                 	Log.i(TAG, "Received: " + extras.toString());
                 }
             }
@@ -105,43 +98,53 @@ public class GcmIntentService extends IntentService {
         try {
 			JSONObject jsonObject = new JSONObject(msg);
 			String amount = jsonObject.getString("amount");
-			JSONObject user = (jsonObject.getJSONObject("actor")).getJSONObject("user");
+			JSONObject user = jsonObject.getJSONObject("actor");
 			String firstName = user.getString("first_name");
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-    	if(msg.contains("lefta")){
-    		if(!mPhysicaloid.isOpened()){
-    			mPhysicaloid.open();
-    		}
-    		if(mPhysicaloid.isOpened()){
-    			mPhysicaloid.setBaudrate(9600);
-    			byte[] buf = new byte[1];
-    			buf[0] = 'l';
-    	        mPhysicaloid.write(buf, buf.length);
-    	        mPhysicaloid.close();
-    		}
-    		
-    		//Intent intent = new Intent(this, DispenseActivity.class);
-    		//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    		//intent.putExtra("sentence", sentence);
-    		//getApplication().startActivity(intent);
-    	}
-    	else if(msg.contains("righta")){
-    		if(!mPhysicaloid.isOpened()){
-    			mPhysicaloid.open();
-    		}
-    		if(mPhysicaloid.isOpened()){
-    			mPhysicaloid.setBaudrate(9600);
-    			byte[] buf = new byte[1];
-    			buf[0] = 'r';
-    	        mPhysicaloid.write(buf, buf.length);
-    	        mPhysicaloid.close();
-    		}
-    		
-    		//Intent intent = new Intent(this, DispenseActivity.class);
-    		//intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    		//getApplication().startActivity(intent);
-    	}
+			String imageUrl = user.getString("profile_picture_url");
+			/*
+			if((System.currentTimeMillis() - currentTime) > 0){
+				currentTime = System.currentTimeMillis();
+				*/
+				if(msg.contains("cola")){
+		    		if(!mPhysicaloid.isOpened()){
+		    			mPhysicaloid.open();
+		    		}
+		    		if(mPhysicaloid.isOpened()){
+		    			mPhysicaloid.setBaudrate(9600);
+		    			byte[] buf = new byte[1];
+		    			buf[0] = 'l';
+		    	        mPhysicaloid.write(buf, buf.length);
+		    	        mPhysicaloid.close();
+		    		}
+	
+		    		Intent intent = new Intent(this, CustomerInfoActivity.class);
+		    		intent.putExtra("message", firstName + " paid $" + amount + ".");
+		    		intent.putExtra("image_url", imageUrl);
+		    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		    		getApplication().startActivity(intent);
+		    	}
+		    	else if(msg.contains("mystery-item")){
+		    		if(!mPhysicaloid.isOpened()){
+		    			mPhysicaloid.open();
+		    		}
+		    		if(mPhysicaloid.isOpened()){
+		    			mPhysicaloid.setBaudrate(9600);
+		    			byte[] buf = new byte[1];
+		    			buf[0] = 'r';
+		    	        mPhysicaloid.write(buf, buf.length);
+		    	        mPhysicaloid.close();
+		    		}
+		    		
+		    		Intent intent = new Intent(this, CustomerInfoActivity.class);
+		    		Bundle extras = new Bundle();
+		    		extras.putString("message", firstName + " paid $" + amount + ".");
+		    		extras.putString("image_url", imageUrl);
+		    		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		    		getApplication().startActivity(intent);
+		    	}
+			//}
+        }catch (Exception e) {
+				e.printStackTrace();
+        }
     }
 }

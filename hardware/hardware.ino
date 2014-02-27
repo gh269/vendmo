@@ -19,7 +19,7 @@ void setup() {
   // put your setup code here, to run once:
   pinMode(left, OUTPUT);
   pinMode(right, OUTPUT);
-  btSerial.begin(9600);
+  //btSerial.begin(9600);
   Serial.begin(9600);
 }
 
@@ -43,18 +43,17 @@ void loop() {
        digitalWrite(left, HIGH);
        delay(1000);
        digitalWrite(left, LOW);
-       delay(16000);
-       current = 'q';
+       delay(8000);
     }
     else if(current == RIGHT_CHAR){
       //Serial.write(current);
        digitalWrite(right, HIGH);
-       delay(1000);
+       delay(2000);
        digitalWrite(right, LOW);
-       delay(16000);
-       current = 'q';
+       delay(8000);
     }
     //btSerial.println("back");
   Serial.write(current);
+  current = 'q';
   }
 }

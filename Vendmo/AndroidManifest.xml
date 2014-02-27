@@ -45,30 +45,38 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyBJYiQ9db_gAi1OcTpuMcYzOxZ0Ff0_qrE" />
+
         <activity
             android:name="hu.calvin.vendmo.DispenseActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_dispense"
-            android:theme="@style/FullscreenTheme" 
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:theme="@style/FullscreenTheme" >
             <intent-filter>
-    			<action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-  				</intent-filter>
-			<meta-data
-	   			android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" 
-	  			android:resource="@xml/device_filter" />
-       	</activity>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
         <activity
             android:name="hu.calvin.vendmo.AttractModeActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_dispense"
-            android:theme="@style/FullscreenTheme" 
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:theme="@style/FullscreenTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="hu.calvin.vendmo.CustomerInfoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_customer_info"
+            android:theme="@style/FullscreenTheme" >
         </activity>
     </application>
 

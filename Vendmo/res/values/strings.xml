@@ -15,5 +15,7 @@
     <string name="test_oauth">Test OAuth</string>
     <string name="title_activity_dispense">title</string>
     <string name="button_start">Start Dispenser</string>
+    <string name="title_activity_customer_info">CustomerInfoActivity</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

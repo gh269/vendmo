@@ -1,22 +1,21 @@
 package hu.calvin.vendmo;
 
-import com.physicaloid.lib.Physicaloid;
+import java.io.InputStream;
+import java.net.URL;
 
 import hu.calvin.vendmo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.usb.UsbManager;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -25,7 +24,7 @@ import android.widget.TextView;
  * 
  * @see SystemUiHider
  */
-public class DispenseActivity extends Activity {
+public class CustomerInfoActivity extends Activity {
 	/**
 	 * Whether or not the system UI should be auto-hidden after
 	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -53,20 +52,14 @@ public class DispenseActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
-	private static Physicaloid mPhysicaloid;
-	private boolean opened;
-	private AsyncTask<Void, Void, Void> task;
-	TextView serialText;
-	private static boolean changeView;
-	
-	
+
+	private String imageUrl;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_dispense);
+		setContentView(R.layout.activity_customer_info);
 		getActionBar().hide();
-		changeView = false;
 
 		final View contentView = findViewById(R.id.fullscreen_content);
 
@@ -93,12 +86,7 @@ public class DispenseActivity extends Activity {
 								mShortAnimTime = getResources().getInteger(
 										android.R.integer.config_shortAnimTime);
 							}
-						} else {
-							// If the ViewPropertyAnimator APIs aren't
-							// available, simply show or hide the in-layout UI
-							// controls.
 						}
-
 						if (visible && AUTO_HIDE) {
 							// Schedule a hide().
 							delayedHide(AUTO_HIDE_DELAY_MILLIS);
@@ -117,40 +105,11 @@ public class DispenseActivity extends Activity {
 				}
 			}
 		});
-	}
-	
-	public void dispensingView(){
 		
-	}
-	
-	public void normalView(){
+		String msg = getIntent().getExtras().getString("message");
+		imageUrl = getIntent().getExtras().getString("image_url");
 		
-	}
-	
-	/*
-	@Override
-	protected void onResume(){
-		super.onResume();
-		task = new AsyncTask<Void,Void,Void>(){
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				for(;;){
-					if(changeView){
-						changeView = false;
-						dispensingView();
-						Thread.sleep(8000);
-						normalView();
-					}
-				}
-				return null;
-			}
-		};
-	}*/
-	
-	@Override
-	protected void onPause(){
-		super.onPause();
+		((TextView)findViewById(R.id.fullscreen_content)).setText(msg);
 	}
 	
 	@Override
@@ -195,11 +154,19 @@ public class DispenseActivity extends Activity {
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
 	}
 	
-	static void show(Context context) {
-        //driver = sDriver;
-        final Intent intent = new Intent(context, DispenseActivity.class);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
-        context.startActivity(intent);
-        changeView = true;
-    }
+	private Drawable LoadImage(String url) {
+
+	    Drawable d;
+	    try {
+	        InputStream is = (InputStream) new URL(url).getContent();
+	        d = Drawable.createFromStream(is, "src name");
+	        return d;
+	    } catch (NullPointerException e) {
+	        d = getResources().getDrawable(R.drawable.noimage);
+	        return d;
+	    } catch (Exception e) {
+	        d = getResources().getDrawable(R.drawable.noimage);
+	        return d;
+	    }
+	}
 }
